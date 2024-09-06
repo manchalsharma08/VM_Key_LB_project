@@ -1,5 +1,6 @@
 module "rg" {
   source    = "../../module/RG"
+  
   monika_lb = var.manchal
 
 }
@@ -23,7 +24,7 @@ module "snet" {
 module "vm" {
   source    = "../../module/Vmachine"
   monika_lb = var.manchal
-  depends_on= ["module.rg","module.vnet","module.snet" ]
+  depends_on= [module.snet , module.rg , module.vnet]
 }
 
 
