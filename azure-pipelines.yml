@@ -1,0 +1,58 @@
+trigger: none
+pool: Default
+
+stages:
+- stage: initPlanStage
+  jobs:
+  - job: InitPlanJOB
+    steps:
+     - task: TerraformInstaller@1
+       inputs:
+         terraformVersion: 'latest'
+     - task: TerraformTaskV4@4
+       inputs:
+         provider: 'azurerm'
+         command: 'init'
+         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
+         backendServiceArm: 'saimyadav-connection'
+         backendAzureRmResourceGroupName: 'man1-rg'
+         backendAzureRmStorageAccountName: 'manchast07977hmnh'
+         backendAzureRmContainerName: 'man-con'
+         backendAzureRmKey: 'man.terraform.tfstate'
+     - task: TerraformTaskV4@4
+       inputs:
+         provider: 'azurerm'
+         command: 'plan'
+         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
+         environmentServiceNameAzureRM: 'saimyadav-connection'
+     
+- stage: manualValidationStage
+  pool: server
+  jobs:
+  - job: ManualValidationJOB
+    steps:
+     - task: ManualValidation@1
+       inputs:
+         instructions: 'hi approve'
+
+- stage: INITandxApplyStage
+  jobs:
+  - job: initApplyJOB
+    steps:
+     - task: TerraformTaskV4@4
+       inputs:
+         provider: 'azurerm'
+         command: 'init'
+         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
+         backendServiceArm: 'saimyadav-connection'
+         backendAzureRmResourceGroupName: 'man1-rg'
+         backendAzureRmStorageAccountName: 'manchast07977hmnh'
+         backendAzureRmContainerName: 'man-con'
+         backendAzureRmKey: 'man.terraform.tfstate'
+     - task: TerraformTaskV4@4
+       inputs:
+         provider: 'azurerm'
+         command: 'apply'
+         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
+         commandOptions: '-auto-approve'
+         environmentServiceNameAzureRM: 'saimyadav-connection'
