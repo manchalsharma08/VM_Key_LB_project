@@ -14,17 +14,17 @@ stages:
          provider: 'azurerm'
          command: 'init'
          workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
-         backendServiceArm: 'saimyadav-connection'
-         backendAzureRmResourceGroupName: 'man1-rg'
-         backendAzureRmStorageAccountName: 'manchast07977hmnh'
-         backendAzureRmContainerName: 'man-con'
-         backendAzureRmKey: 'man.terraform.tfstate'
+         backendServiceArm: 'Rameshwarsc'
+         backendAzureRmResourceGroupName: 'pipeline-rg'
+         backendAzureRmStorageAccountName: 'pipeline097577'
+         backendAzureRmContainerName: 'pipelinecon'
+         backendAzureRmKey: 'pipeline.terraform.tfstate'
      - task: TerraformTaskV4@4
        inputs:
          provider: 'azurerm'
          command: 'plan'
          workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
-         environmentServiceNameAzureRM: 'saimyadav-connection'
+         environmentServiceNameAzureRM: 'Rameshwarsc'
      
 - stage: manualValidationStage
   pool: server
@@ -44,15 +44,15 @@ stages:
          provider: 'azurerm'
          command: 'init'
          workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
-         backendServiceArm: 'saimyadav-connection'
-         backendAzureRmResourceGroupName: 'man1-rg'
-         backendAzureRmStorageAccountName: 'manchast07977hmnh'
-         backendAzureRmContainerName: 'man-con'
-         backendAzureRmKey: 'man.terraform.tfstate'
+         backendServiceArm: 'Rameshwarsc'
+         backendAzureRmResourceGroupName: 'pipeline-rg'
+         backendAzureRmStorageAccountName: 'pipeline097577'
+         backendAzureRmContainerName: 'pipelinecon'
+         backendAzureRmKey: 'pipeline.terraform.tfstate'
      - task: TerraformTaskV4@4
        inputs:
          provider: 'azurerm'
          command: 'apply'
          workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
          commandOptions: '-auto-approve'
-         environmentServiceNameAzureRM: 'saimyadav-connection'
+         environmentServiceNameAzureRM: 'Rameshwarsc'
