@@ -1,0 +1,10 @@
+# File: template/manual-validation.yml
+- stage: manualValidationStage
+  pool: server
+  jobs:
+  - job: ManualValidationJOB
+    steps:
+     - task: ManualValidation@1
+       inputs:
+         instructions: 'hi approve'
+

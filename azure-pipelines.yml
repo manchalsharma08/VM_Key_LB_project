@@ -1,58 +1,110 @@
-trigger: none
+# main-pipeline.yml
+trigger: 
+ branches:
+   include:
+     - main
+     - master
+
 pool: Default
+# If your entire pipeline is a template, use extends (As perrameters and Variables)
+extends:
+  template: templates/parameter-template.yml
+
+variables:
+  - template: templates/variable-template.yml
+
+
+
 
 stages:
-- stage: initPlanStage
-  jobs:
-  - job: InitPlanJOB
-    steps:
-     - task: TerraformInstaller@1
-       inputs:
-         terraformVersion: 'latest'
-     - task: TerraformTaskV4@4
-       inputs:
-         provider: 'azurerm'
-         command: 'init'
-         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
-         backendServiceArm: 'Rameshwarsc'
-         backendAzureRmResourceGroupName: 'pipeline-rg'
-         backendAzureRmStorageAccountName: 'pipeline097577'
-         backendAzureRmContainerName: 'pipelinecon'
-         backendAzureRmKey: 'pipeline.terraform.tfstate'
-     - task: TerraformTaskV4@4
-       inputs:
-         provider: 'azurerm'
-         command: 'plan'
-         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
-         environmentServiceNameAzureRM: 'Rameshwarsc'
-     
-- stage: manualValidationStage
-  pool: server
-  jobs:
-  - job: ManualValidationJOB
-    steps:
-     - task: ManualValidation@1
-       inputs:
-         instructions: 'hi approve'
+  - stage: LintStage
+    displayName: Lint Terraform & YAML
+    condition: or(
+      eq(variables['Build.SourceBranchName'], 'refs/heads/main'),
+      eq(variables['Build.SourceBranchName'], 'refs/heads/master')
+     )
+    #Iska matlab: > "Sirf tab LintStage run kare jab pipeline ya to main ya master branch se trigger ho."
+    #🧠 Breakdown of expression:
+    #variables['Build.SourceBranchName'] → yeh pipeline ke source branch ka naam fetch karta hai (jaise: refs/heads/main).
+    #eq(a, b) → check karta hai ki a aur b equal hain ya nahi.
+    #or(...) → agar koi bhi condition true ho jaaye (main ya master), to stage run kare.
+    
+    jobs:
+     - template: templates/Dev-sec-Opc-template.yml
+       parameters:
+         workingDir: ${{ parameters.terraformWorkingDir }}
 
-- stage: INITandxApplyStage
-  jobs:
-  - job: initApplyJOB
-    steps:
-     - task: TerraformTaskV4@4
-       inputs:
-         provider: 'azurerm'
-         command: 'init'
-         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
-         backendServiceArm: 'Rameshwarsc'
-         backendAzureRmResourceGroupName: 'pipeline-rg'
-         backendAzureRmStorageAccountName: 'pipeline097577'
-         backendAzureRmContainerName: 'pipelinecon'
-         backendAzureRmKey: 'pipeline.terraform.tfstate'
-     - task: TerraformTaskV4@4
-       inputs:
-         provider: 'azurerm'
-         command: 'apply'
-         workingDirectory: '$(System.DefaultWorkingDirectory)/enviroment/Dev'
-         commandOptions: '-auto-approve'
-         environmentServiceNameAzureRM: 'Rameshwarsc'
+  - stage: InitPlanStage
+    displayName: Terraform Init & Plan
+    jobs:
+      - job: InitPlanJob
+        displayName: Terraform Init & Plan
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: '$(terraformVersion)'
+
+          - template: templates/terraform-init.yml
+            parameters:
+              workingDir: ${{ parameters.terraformWorkingDir }}
+              ArmServiceConnection: ${{ parameters.serviceConnection }}
+              ArmRG: ${{ parameters.armResourceGroup }}
+              ArmStorage: ${{ parameters.armStorageAccount }}
+              ArmContainer: ${{ parameters.armContainerName }}
+              ArmKey: ${{ parameters.armKey }}
+
+          - task: TerraformTaskV4@4
+            displayName: Terraform Plan
+            dependsOn: LintStage
+            condition: succeeded('LintStage')
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: ${{ parameters.terraformWorkingDir }}
+              environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}
+
+  - template: templates/manual-validation.yml
+
+  - stage: InitApplyStage
+    displayName: Terraform Init & Apply
+    dependsOn: manualValidationStage
+    jobs:
+      - job: InitApplyJob
+        displayName: Terraform Apply
+        dependsOn: manualValidationStage
+        condition: succeeded('manualValidationStage')
+        steps:
+          - template: templates/terraform-init.yml
+            parameters:
+              workingDir: ${{ parameters.terraformWorkingDir }}
+              ArmServiceConnection: ${{ parameters.serviceConnection }}
+              ArmRG: ${{ parameters.armResourceGroup }}
+              ArmStorage: ${{ parameters.armStorageAccount }}
+              ArmContainer: ${{ parameters.armContainerName }}
+              ArmKey: ${{ parameters.armKey }}
+
+          - task: TerraformTaskV4@4
+            displayName: Terraform Apply
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: ${{ parameters.terraformWorkingDir }}
+              commandOptions: '-auto-approve'
+              environmentServiceNameAzureRM: ${{ parameters.serviceConnection }}
+
+          - task: Bash@3
+            displayName: Extract VM Output Info
+            inputs:
+               targetType: inline
+               script: |
+                 cd ${{ parameters.terraformWorkingDir }}
+                 echo "Getting VM details from Terraform..."
+                 output_json=$(terraform output -json vm_info)
+                 echo "##vso[task.setvariable variable=vm_info_json;isOutput=true]$output_json"
+
+                 #ptional: extract first IP for debugging or other stages
+
+                 first_ip=$(echo "$output_json" | jq -r 'to_entries[0].value.public_ip')
+                 echo "##vso[task.setvariable variable=first_vm_ip]$first_ip"
+

@@ -1,0 +1,26 @@
+# templates/parameter-template.yml
+parameters:
+  - name: terraformWorkingDir
+    type: string
+    default: '$(System.DefaultWorkingDirectory)/environment/Dev'
+
+  - name: serviceConnection
+    type: string
+    default: 'pipe-rg'
+
+  - name: armResourceGroup
+    type: string
+    default: 'pipe-rg'
+
+  - name: armStorageAccount
+    type: string
+    default: 'pipestorage9875903'
+
+  - name: armContainerName
+    type: string
+    default: 'pipecontainer'
+
+  - name: armKey
+    type: string
+    default: 'pipe.terraform.tfstate'
+  

@@ -9,6 +9,12 @@ terraform {
       version = "~> 3.0"
     }
   }
+  backend "azurerm" {
+    resource_group_name  = "pipe-rg"
+    storage_account_name = "pipestorage9875903"
+    container_name       = "pipecontainer"
+    key                  = "pipe.terraform.tfstate" 
+  }
 }
 
 provider "azurerm" {

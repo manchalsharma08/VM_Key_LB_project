@@ -1,0 +1,5 @@
+# templates/variable-template.yml
+variables:
+  environment: 'dev'
+  location: 'centralindia'
+  terraformVersion: 'latest'

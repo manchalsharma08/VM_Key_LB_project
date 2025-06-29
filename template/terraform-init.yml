@@ -1,0 +1,21 @@
+# templates/terraform-init.yml
+parameters:
+  workingDir: ''
+  ArmServiceConnection: ''
+  ArmRG: ''
+  ArmStorage: ''
+  ArmContainer: ''
+  ArmKey: ''
+
+steps:
+  - task: TerraformTaskV4@4
+    displayName: Terraform Init
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: ${{ parameters.workingDir }}
+      backendServiceArm: ${{ parameters.ArmServiceConnection }}
+      backendAzureRmResourceGroupName: ${{ parameters.ArmRG }}
+      backendAzureRmStorageAccountName: ${{ parameters.ArmStorage }}
+      backendAzureRmContainerName: ${{ parameters.ArmContainer }}
+      backendAzureRmKey: ${{ parameters.ArmKey }}

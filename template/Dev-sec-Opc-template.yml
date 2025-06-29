@@ -1,0 +1,47 @@
+parameters:
+  workingDir: ''
+
+job: LintJob
+displayName: Run TFLint & YAML Lint
+condition: or(
+      eq(variables['Build.SourceBranchName'], 'refs/heads/main'),
+      eq(variables['Build.SourceBranchName'], 'refs/heads/master')
+    )
+    #Iska matlab: > "Sirf tab LintStage run kare jab pipeline ya to main ya master branch se trigger ho."
+    #🧠 Breakdown of expression:
+    #variables['Build.SourceBranchName'] → yeh pipeline ke source branch ka naam fetch karta hai (jaise: refs/heads/main).
+    #eq(a, b) → check karta hai ki a aur b equal hain ya nahi.
+    #or(...) → agar koi bhi condition true ho jaaye (main ya master), to stage run kare.
+    
+steps:
+        - task: Bash@3
+          displayName: Install linters
+          inputs:
+            targetType: inline
+            script: |
+              curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+              pip install yamllint
+
+        - task: Bash@3
+          displayName: Run TFLint
+          inputs:
+            targetType: inline
+            script: |
+              cd ${{ parameters.workingDir }}
+              tflint --init
+              tflint
+
+        - task: Bash@3
+          displayName: Run YAML lint
+          inputs:
+            targetType: inline
+            script: |
+              yamllint .
+
+        - task: Bash@3
+          displayName: Run tfsec scan
+          inputs:
+          targetType: inline
+          script: |
+            cd ${{ parameters.workingDir }}
+            tfsec .
