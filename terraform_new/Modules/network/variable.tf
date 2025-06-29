@@ -1,3 +1,3 @@
 variable "monika_lb" {
-  type =map(any)
+  type = map(any)
 }

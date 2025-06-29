@@ -1,4 +1,4 @@
 variable "manchal" {
 
-type = map(any)
+  type = map(any)
 }
