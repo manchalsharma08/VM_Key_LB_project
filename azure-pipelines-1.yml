@@ -1,0 +1,20 @@
+trigger: none
+
+pool: default
+
+stages:
+- stage: infraAKSAtage
+  jobs:
+  - job: InfraAKSJob
+    steps:
+     - task: AzureCLI@2
+       inputs:
+          azureSubscription: 'AbhimanSC'
+          scriptType: 'ps'
+          scriptLocation: 'scriptPath'
+          scriptPath: 'Kubernetes/deploy-aks.ps1'
+     - script: |
+           echo "aks clustter deploying "
+           az account set --subscription b2744a0d-e7f7-4cea-af52-689c2e4a2c69
+           az aks get-credentials --resource-group mymeerg01 --name mymeeaks --overwrite-existing
+           
