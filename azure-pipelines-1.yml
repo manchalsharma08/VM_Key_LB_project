@@ -17,4 +17,20 @@ stages:
            echo "aks clustter deploying "
            az account set --subscription b2744a0d-e7f7-4cea-af52-689c2e4a2c69
            az aks get-credentials --resource-group mymeerg01 --name mymeeaks --overwrite-existing
+  
+- stage: AcrCreateStage
+  jobs:
+  - job: AcrCreateJob
+    steps:
+    - script: |
+          echo "Creating ACR: $ACR_NAME in $RESOURCE_GROUP..."
+
+          az acr create -name myacrabhiman --resorce-group --location --sku basic --admin-enable true
+
+          echo " ACR created successfully!"
+
+          az acr login --name myacrabhiman
+
+          az acr show --name myacrabhiman --quary loginserver --output table
+
            
