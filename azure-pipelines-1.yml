@@ -25,7 +25,7 @@ stages:
          scriptLocation: 'inlineScript'
          inlineScript: 'echo "Creating ACR: $ACR_NAME in $RESOURCE_GROUP..."'
      - script: 
-          az acr create -name myacrabhiman --resorce-group --location --sku basic --admin-enable true
+          az acr create -name myacrabhiman --resource-group mymeerg01 --location eastus --sku basic --admin-enable true
 
           echo " ACR created successfully!"
 
