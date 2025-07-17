@@ -31,7 +31,7 @@ stages:
             containerRegistry: 'abhiacrsc'
             repository: '$(imageName)'
             command: 'buildAndPush'
-            Dockerfile: 'Infra-aks-acr-docker-image -pu-dep-svc/Dockerfile'
+            Dockerfile: 'Infra-aks-acr-docker-image-pu-dep-svc/Dockerfile'
             tags: |
               latest
               $(tag)
@@ -54,7 +54,7 @@ stages:
               az aks get-credentials --name $(aksCluster) --resource-group $(resourceGroup) --overwrite-existing
               
               echo "Substitute image in manifest"
-              sed -i "s|__IMAGE__|myacr5696.azurecr.io/$(imageName):$(tag)|" Infra-aks-acr-docker-image -pu-dep-svc/k8s/deployment.yaml
+              sed -i "s|__IMAGE__|myacr5696.azurecr.io/$(imageName):$(tag)|" Infra-aks-acr-docker-image-pu-dep-svc/k8s/deployment.yaml
               
               echo "Deploying to AKS"
               kubectl apply -f k8s/deployment.yaml
