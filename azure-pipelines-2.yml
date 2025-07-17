@@ -57,8 +57,8 @@ stages:
               sed -i "s|__IMAGE__|myacr5696.azurecr.io/$(imageName):$(tag)|" Infra-aks-acr-docker-image-pu-dep-svc/k8s/deployment.yaml
               
               echo "Deploying to AKS"
-              kubectl apply -f k8s/deployment.yaml
-              kubectl apply -f k8s/service.yaml
+              kubectl apply -f Infra-aks-acr-docker-image-pu-dep-svc/k8s/deployment.yaml
+              kubectl apply -f Infra-aks-acr-docker-image-pu-dep-svc/k8s/deployment.yaml
               
               echo "Waiting for External IP..."
               kubectl wait --for=condition=available --timeout=60s deployment/http-calculator
