@@ -1,0 +1,64 @@
+trigger:
+  branches:
+    include:
+      - main
+      - master
+
+variables:
+  azureSubscription: 'AbhimanSC'
+  acrName: 'myacr5696'
+  aksCluster: 'myaks-cluster'
+  resourceGroup: 'myapp1-rg'
+  containerRegistry: 'myacr5696.azurecr.io'
+  imageName: 'http-calculator'
+  tag: 'v$(Build.BuildId)'
+
+stages:
+
+# Stage 1: Build & Push Image to ACR
+- stage: BuildAndPush
+  jobs:
+    - job: Build
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+        - task: Checkout@1
+
+        - task: Docker@2
+          displayName: Build Image
+          inputs:
+            containerRegistry: $(azureSubscription)
+            repository: $(imageName)
+            command: buildAndPush
+            Dockerfile: '**/Dockerfile'
+            tags: |
+              latest
+              $(tag)
+
+# Stage 2: Deploy to AKS
+- stage: Deploy
+  dependsOn: BuildAndPush
+  jobs:
+    - job: DeployToAKS
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+        - task: AzureCLI@2
+          inputs:
+            azureSubscription: $(azureSubscription)
+            scriptType: bash
+            scriptLocation: inlineScript
+            inlineScript: |
+              echo "Getting AKS Credentials"
+              az aks get-credentials --name $(aksCluster) --resource-group $(resourceGroup) --overwrite-existing
+
+              echo "Substitute image in manifest"
+              sed -i "s|__IMAGE__|$(containerRegistry)/$(imageName):$(tag)|" k8s/deployment.yaml
+
+              echo "Deploying to AKS"
+              kubectl apply -f k8s/deployment.yaml
+              kubectl apply -f k8s/service.yaml
+
+              echo "Waiting for External IP..."
+              kubectl wait --for=condition=available --timeout=60s deployment/http-calculator
+              kubectl get svc http-calculator-service
