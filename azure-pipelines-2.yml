@@ -23,23 +23,30 @@ stages:
         vmImage: ubuntu-latest
       steps:
 
-        - task: Checkout@1
+       - task: Docker@2
+         inputs:
+           containerRegistry: 'abhiacrsc'
+           repository: 'http-calculator'
+           command: 'buildAndPush'
+           Dockerfile: 'Infra-aks-acr-docker-image-pu-dep-svc/Dockerfile'
 
-        - script: |
-            echo "List root directory contents:"
-            ls -R
-          displayName: "Debug: List project files"
+        # - task: Checkout@1
 
-        - task: Docker@2
-          displayName: Build Image
-          inputs:
-            containerRegistry: 'abhiacrsc'
-            repository: '$(imageName)'
-            command: 'buildAndPush'
-            Dockerfile: 'Infra-aks-acr-docker-image-pu-dep-svc/Dockerfile'
-            tags: |
-              latest
-              $(tag)
+        # - script: |
+        #     echo "List root directory contents:"
+        #     ls -R
+        #   displayName: "Debug: List project files"
+
+        # - task: Docker@2
+        #   displayName: Build Image
+        #   inputs:
+        #     containerRegistry: 'abhiacrsc'
+        #     repository: '$(imageName)'
+        #     command: 'buildAndPush'
+        #     Dockerfile: 'Infra-aks-acr-docker-image-pu-dep-svc/Dockerfile'
+        #     tags: |
+        #       latest
+        #       $(tag)
 
 # Stage 2: Deploy to AKS
 - stage: Deploy
