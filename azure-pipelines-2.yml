@@ -31,7 +31,7 @@ stages:
             containerRegistry: 'abhiacrsc'
             repository: '$(imageName)'
             command: 'buildAndPush'
-            Dockerfile: '**/Dockerfile'
+            Dockerfile: 'Infra-aks-acr-docker-image -pu-dep-svc/Dockerfile'
             tags: |
               latest
               $(tag)
@@ -46,20 +46,20 @@ stages:
       steps:
         - task: AzureCLI@2
           inputs:
-            azureSubscription: $(azureSubscription)
-            scriptType: bash
-            scriptLocation: inlineScript
+            azureSubscription: '$(azureSubscription)'
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
             inlineScript: |
               echo "Getting AKS Credentials"
               az aks get-credentials --name $(aksCluster) --resource-group $(resourceGroup) --overwrite-existing
-
+              
               echo "Substitute image in manifest"
-              sed -i "s|__IMAGE__|myacr5696.azurecr.io/$(imageName):$(tag)|" k8s/deployment.yaml
-
+              sed -i "s|__IMAGE__|myacr5696.azurecr.io/$(imageName):$(tag)|" Infra-aks-acr-docker-image -pu-dep-svc/k8s/deployment.yaml
+              
               echo "Deploying to AKS"
               kubectl apply -f k8s/deployment.yaml
               kubectl apply -f k8s/service.yaml
-
+              
               echo "Waiting for External IP..."
               kubectl wait --for=condition=available --timeout=60s deployment/http-calculator
               kubectl get svc http-calculator-service
