@@ -9,6 +9,7 @@ $location = "eastus"
 $aksClusterName = "mymeeaks"
 $nodeCount = 2
 $nodeVMSize = "Standard_B2s"
+$ACR_NAME = "mymeeacr01" # Replace with your ACR name
 
 # Create the Resource Group
 az group create `
@@ -24,16 +25,18 @@ az aks create `
   --generate-ssh-keys `
   --enable-managed-identity `
   --network-plugin azure `
-  --network-policy calico
+  --network-policy calico `
+  --attach-acr $ACR_NAME
 
 
-  # After the AKS cluster is created, you can configure kubectl to use the new cluster
-az aks get-credentials `
-  --resource-group $resourceGroupName `
-  --name $aksClusterName       
+#   # After the AKS cluster is created, you can configure kubectl to use the new cluster
+# az aks get-credentials `
+#   --resource-group $resourceGroupName `
+#   --name $aksClusterName       
 
- # Set the cluster subscription
-az account set --subscription 3a734e32-021d-4243-89ff-c3495e6aa4da
-# Get credentials for the AKS cluster
-az aks get-credentials --resource-group mymeerg01 --name mymeeaks --overwrite-existing
+#  # Set the cluster subscription
+# az account set --subscription 3a734e32-021d-4243-89ff-c3495e6aa4da
+# # Get credentials for the AKS cluster
+# az aks get-credentials --resource-group mymeerg01 --name mymeeaks --overwrite-existing
+
 
