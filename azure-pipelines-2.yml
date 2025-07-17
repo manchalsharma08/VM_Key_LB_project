@@ -22,8 +22,13 @@ stages:
       pool:
         vmImage: ubuntu-latest
       steps:
-       
+
         - task: Checkout@1
+
+        - script: |
+            echo "List root directory contents:"
+            ls -R
+          displayName: "Debug: List project files"
 
         - task: Docker@2
           displayName: Build Image
@@ -58,7 +63,7 @@ stages:
               
               echo "Deploying to AKS"
               kubectl apply -f Infra-aks-acr-docker-image-pu-dep-svc/k8s/deployment.yaml
-              kubectl apply -f Infra-aks-acr-docker-image-pu-dep-svc/k8s/deployment.yaml
+              kubectl apply -f Infra-aks-acr-docker-image-pu-dep-svc/k8s/service.yaml
               
               echo "Waiting for External IP..."
               kubectl wait --for=condition=available --timeout=60s deployment/http-calculator
