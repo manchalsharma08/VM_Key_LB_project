@@ -9,7 +9,7 @@ variables:
   acrName: 'myacr5696'
   aksCluster: 'myaks-cluster'
   resourceGroup: 'myapp1-rg'
-  containerRegistry: 'myacr5696.azurecr.io'
+  containerRegistry: 'abhiacrsc'
   imageName: 'http-calculator'
   tag: 'v$(Build.BuildId)'
 
@@ -54,7 +54,7 @@ stages:
               az aks get-credentials --name $(aksCluster) --resource-group $(resourceGroup) --overwrite-existing
 
               echo "Substitute image in manifest"
-              sed -i "s|__IMAGE__|$(containerRegistry)/$(imageName):$(tag)|" k8s/deployment.yaml
+              sed -i "s|__IMAGE__|myacr5696.azurecr.io/$(imageName):$(tag)|" k8s/deployment.yaml
 
               echo "Deploying to AKS"
               kubectl apply -f k8s/deployment.yaml
