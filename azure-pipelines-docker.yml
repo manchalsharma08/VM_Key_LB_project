@@ -15,3 +15,10 @@ jobs:
        repository: 'myapp-image'
        command: 'buildAndPush'
        Dockerfile: 'Calculator-App/Dockerfile'
+   - task: Kubernetes@1
+     inputs:
+       connectionType: 'Kubernetes Service Connection'
+       kubernetesServiceEndpoint: 'abhinewakssc'
+       command: 'apply'
+       useConfigurationFile: true
+       configuration: 'Kubernetes/Deployment/deployment.yaml'
