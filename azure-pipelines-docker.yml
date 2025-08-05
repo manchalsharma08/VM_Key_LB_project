@@ -1,0 +1,17 @@
+trigger: none
+pool: defauil
+
+jobs:
+- job: dockerbuild
+  steps:
+   - task: Docker@2
+     inputs:
+       containerRegistry: 'abhinewdocker'
+       command: 'login'
+
+   - task: Docker@2
+     inputs:
+       containerRegistry: 'abhinewdocker'
+       repository: 'myapp-image'
+       command: 'buildAndPush'
+       Dockerfile: 'Calculator-App/Dockerfile'
