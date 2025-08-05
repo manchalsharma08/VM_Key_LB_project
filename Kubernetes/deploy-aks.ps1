@@ -4,29 +4,48 @@
 # Make sure you are logged into Azure using `az login` before running.
 
 # Set variables
+# Variables
 $resourceGroupName = "mymeerg01"
 $location = "eastus"
 $aksClusterName = "mymeeaks"
 $nodeCount = 2
 $nodeVMSize = "Standard_B2s"
-$ACR_NAME = "mymeeacr01" # Replace with your ACR name
+$ACR_NAME = "mymeeacr01"
+$acrSku = "Basic"
 
-# Create the Resource Group
+# Create Resource Group
 az group create `
   --name $resourceGroupName `
   --location $location
 
-# Create the AKS Cluster
-az aks create `
-  --resource-group $resourceGroupName `
-  --name $aksClusterName `
-  --node-count $nodeCount `
-  --node-vm-size $nodeVMSize `
-  --generate-ssh-keys `
-  --enable-managed-identity `
-  --network-plugin azure `
-  --network-policy calico `
-  --attach-acr $ACR_NAME
+# Check if resource group creation was successful
+if ($LASTEXITCODE -eq 0) {
+  
+  # Create ACR
+  az acr create `
+    --resource-group $resourceGroupName `
+    --name $ACR_NAME `
+    --sku $acrSku `
+    --location $location `
+    --admin-enabled false
+
+  # Check if ACR creation was successful
+  if ($LASTEXITCODE -eq 0) {
+
+    # Create AKS and attach ACR
+    az aks create `
+      --resource-group $resourceGroupName `
+      --name $aksClusterName `
+      --node-count $nodeCount `
+      --node-vm-size $nodeVMSize `
+      --generate-ssh-keys `
+      --enable-managed-identity `
+      --network-plugin azure `
+      --network-policy calico `
+      --attach-acr $ACR_NAME
+  }
+}
+
 
 
 #   # After the AKS cluster is created, you can configure kubectl to use the new cluster

@@ -1,31 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: http-calculator-deployment
+  name: myapp-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: http-calculator
+      app: myapp
   template:
     metadata:
       labels:
-        app: http-calculator
+        app: myapp
     spec:
       containers:
-        - name: calculator
-          image: mymeeacr01.azurecr.io/http-calculator:v1
+        - name: myapp
+          image: mymeeacr03.azurecr.io/myapp-image:503
           ports:
             - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: http-calculator-service
+  name: myapp-service
 spec:
   type: LoadBalancer
   selector:
-    app: http-calculator
+    app: myapp
   ports:
     - port: 80
       targetPort: 80
