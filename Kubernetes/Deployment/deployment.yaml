@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: myapp
-          image: mymeeacr03.azurecr.io/myapp-image:503
+          image: mymeeacr03.azurecr.io/myapp-image:508
           ports:
             - containerPort: 80
 ---
